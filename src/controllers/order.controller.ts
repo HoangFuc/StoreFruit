@@ -18,8 +18,8 @@ import {
   requestBody,
   response
 } from '@loopback/rest';
-import {Order, OrderRequest} from '../models';
-import {OrderRepository, ProductRepository} from '../repositories';
+import {Order, OrderDetail, OrderRequest, ResponseOrder} from '../models';
+import {OrderDetailRepository, OrderRepository, ProductRepository} from '../repositories';
 
 export class OrdersController {
   constructor(
@@ -27,12 +27,14 @@ export class OrdersController {
     public ordersRepository: OrderRepository,
     @repository(ProductRepository)
     public productRepository: ProductRepository,
+    @repository(OrderDetailRepository)
+    public orderDetailRepository: OrderDetailRepository,
   ) { }
 
   @post('/orders')
   @response(200, {
     description: 'Order model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Order)}},
+    content: {'application/json': {schema: getModelSchemaRef(ResponseOrder)}},
   })
   async create(
     @requestBody({
@@ -45,13 +47,13 @@ export class OrdersController {
       },
     })
     req: OrderRequest,
-  ): Promise<Order | undefined> {
+  ): Promise<ResponseOrder | undefined> {
     console.log(`[orders] request: ${JSON.stringify(req)}`)
     // handle validate product, quantity, total = totalPaid + discount, total = sum(products)
 
     let orderTotal = 0
     // validate product
-    const orderDetails: {total: number, productId: number, quantity: number, order_id?: number}[] = []
+    const orderDetails: {total: number, product_id: number, quantity: number, order_id?: number}[] = []
     for (const reqProduct of req.products) {
       const product = await this.productRepository.findOne({
         where: {
@@ -61,7 +63,7 @@ export class OrdersController {
       if (!product) {
         throw new HttpErrors[404](`Not found product with code ${reqProduct.code}`)
       }
-      // after that validate quantity
+      //validate quantity
       if (reqProduct.quantity > product.inventory || product.inventory == null) {
         throw new HttpErrors[404](`${product.code} is out of stock`)
       }
@@ -69,31 +71,54 @@ export class OrdersController {
       orderTotal += productTotal; //tong tien tren order
 
       orderDetails.push({
-        productId: product.id,
+        product_id: product.id,
         total: productTotal,
         quantity: reqProduct.quantity
       })
+      // validate total
+      if (!(req.total === productTotal)) {
+        throw new HttpErrors[404](`Not equal total value`)
+      }
+      // validate total_paid and discount
+      if (!(req.total_paid === (productTotal - req.discount))) {
+        throw new HttpErrors[404](`Bad Request`)
+      }
+      // // create order
+
+      const newOrderData = new Order({
+        customer_id: req.customer_id,
+        total: orderTotal,
+      })
+      const newOrder = await this.ordersRepository.create(newOrderData)
+      const order = await this.ordersRepository.findById(newOrder.id, {
+        include: [{
+          relation: 'customer'
+        }]
+      })
+      // create order detail
+      const newOrderDetailsData = orderDetails.map((item) => new OrderDetail({
+        ...item,
+        order_id: newOrder.id
+      }))
+      const newOrderDetails = await this.orderDetailRepository.createAll(newOrderDetailsData)
+      const responseOrders = new ResponseOrder({
+        ...order,
+        order_details: [],
+      })
+
+      const orderDetailIds = newOrderDetails?.map(it => it.id)
+      if (orderDetailIds && orderDetailIds.length > 0) {
+        const orderDetails = await this.orderDetailRepository.find({
+          where: {id: {inq: orderDetailIds}},
+          include: ['product']
+        })
+        responseOrders.order_details = orderDetails
+      }
+      // const newResponseOrders = await this.ordersRepository.create(responseOrders);
+      return responseOrders;
+      // return
     }
-    // validate total
-    // // create order
-    const newOrderData = new Order({
-      customer_id: req.customer_id,
-      total: orderTotal,
-    })
-    const newOrder = await this.ordersRepository.create(newOrderData)
-    // create order detail
-    let newOrderDetails = orderDetails.map((item) => ({
-      ...item,
-      order_id: newOrder.id
-    }))
-    console.log(newOrderDetails);
-    // console.log(orderDetails)
-
-    // return resS
-    return
-    // return this.ordersRepository.create();
   }
-
   @get('/orders/count')
   @response(200, {
     description: 'Order model count',

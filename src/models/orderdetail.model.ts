@@ -19,8 +19,8 @@ export class OrderDetail extends Entity {
   })
   total: number;
 
-  @belongsTo(() => Order)
-  orderId: number;
+  @belongsTo(() => Order, {name: 'order'})
+  order_id: number;
 
   @belongsTo(() => Product, {name: 'product'})
   product_id: number;
@@ -33,3 +33,17 @@ export class OrderDetail extends Entity {
 
 export interface OrderDetailRelations { }
 export type OrderDetailWithRelations = OrderDetail & OrderDetailRelations;
+
+
+
+// export class OrderDetails extends Entity {
+//   @property({
+//     type: 'array',
+//     itemType: OrderDetail
+//   })
+//   orderdetails: OrderDetails[];
+
+//   constructor(data?: Partial<OrderDetails) {
+//     super(data);
+//   }
+// }

@@ -18,7 +18,7 @@ export class Order extends TimeStampMixin(Entity) {
   @belongsTo(() => Customer, {name: 'customer'})
   customer_id: number;
 
-  @hasMany(() => OrderDetail)
+  @hasMany(() => OrderDetail, {keyTo: 'order_id'})
   order_details: OrderDetail[];
 
   constructor(data?: Partial<Order>) {
@@ -53,7 +53,7 @@ export class OrderRequest extends Entity {
   @property({
     type: 'number',
   })
-  discount?: number; // KM
+  discount: number; // KM
 
   @property({
     type: 'number',
@@ -71,6 +71,26 @@ export class OrderRequest extends Entity {
   customer_id?: number;
 
   constructor(data?: Partial<OrderRequest>) {
+    super(data);
+  }
+}
+
+@model()
+export class ResponseOrder extends Order {
+
+  @property({
+    type: 'array',
+    itemType: Object,
+  })
+  orders: Order[];
+
+  @property({
+    type: 'array',
+    itemType: Object,
+  })
+  order_details: OrderDetail[];
+
+  constructor(data?: Partial<ResponseOrder>) {
     super(data);
   }
 }

@@ -4,7 +4,7 @@ import {Product} from '../models';
 import {ProductRepository} from '../repositories';
 
 export async function insertProducts(app: StoreApplication) {
-  const nanoid = customAlphabet('ABCDEFGH123456789', 4);
+  const nanoid = customAlphabet('ABCDEFGHKIJ123456789', 4);
   const products = [
     {name: 'Watermelon', price: 20000, inventory: 50},
     {name: 'Orange', price: 10000, inventory: 20}

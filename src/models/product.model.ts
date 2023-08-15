@@ -48,4 +48,3 @@ export class Product extends Entity {
 
 export interface ProductRelations { }
 export type ProductWithRelations = Product & ProductRelations;
-export default Product;

@@ -1,4 +1,4 @@
-import {Entity, belongsTo, model, property} from '@loopback/repository';
+import {Entity, Model, belongsTo, model, property} from '@loopback/repository';
 import {TimeStampMixin} from '../mixin/time-stamp-model.mixin';
 import {Customer} from './customer.model';
 @model()
@@ -31,3 +31,22 @@ export class Account extends TimeStampMixin(Entity) {
 
 export interface AccountRelations { }
 export type AccountWithRelations = Account & AccountRelations;
+
+
+@model()
+export class Login extends Model {
+  @property({
+    type: 'string',
+  })
+  username: string;
+
+  @property({
+    type: 'string',
+  })
+  password: string;
+
+  constructor(data?: Partial<Login>) {
+    super(data);
+  }
+
+}

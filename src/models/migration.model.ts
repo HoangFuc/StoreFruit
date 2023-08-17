@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class MigrationProduct extends Entity {
+export class Migration extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -14,10 +14,10 @@ export class MigrationProduct extends Entity {
   })
   name: string;
 
-  constructor(data?: Partial<MigrationProduct>) {
+  constructor(data?: Partial<Migration>) {
     super(data);
   }
 }
 
-export interface MigrationProductRelations { }
-export type MigrationProductWithRelations = MigrationProduct & MigrationProductRelations;
+export interface MigrationRelations { }
+export type MigrationWithRelations = Migration & MigrationRelations;

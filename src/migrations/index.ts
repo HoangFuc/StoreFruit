@@ -1,11 +1,10 @@
 import {StoreApplication} from '../application';
-import {MigrationAccountRepository, MigrationProductRepository} from '../repositories';
+import {MigrationRepository} from '../repositories';
 import {insertProducts} from './00000.insert.product';
 import {insertAccounts} from './00010.insert.account';
 
 export async function migrations(app: StoreApplication) {
-  const migrateProductRepo = await app.getRepository(MigrationProductRepository);
-  const migrateAccountRepo = await app.getRepository(MigrationAccountRepository);
+  const migrate = await app.getRepository(MigrationRepository);
   const list = [
     {name: '00000.insert.product.ts', migration: insertProducts},
     {name: '00000.insert.product.ts', migration: insertProducts},
@@ -13,7 +12,7 @@ export async function migrations(app: StoreApplication) {
   ]
 
   for (const migration of list) {
-    const found = await migrateProductRepo.findOne({
+    const found = await migrate.findOne({
       where: {
         name: migration.name
       }
@@ -21,12 +20,13 @@ export async function migrations(app: StoreApplication) {
     if (!found) {
       console.log(`Start ${migration.name}`);
       await migration.migration(app);
-      await migrateProductRepo.create({
+      await migrate.create({
         name: migration.name
       })
       console.log(`End ${migration.name}`);
     } else {
       console.log(`Skip ${migration.name}`)
+
     }
   }
 }

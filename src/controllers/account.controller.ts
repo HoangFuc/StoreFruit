@@ -1,10 +1,12 @@
+import {TokenServiceBindings, UserServiceBindings} from '@loopback/authentication-jwt';
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
   Where,
+  repository,
 } from '@loopback/repository';
 import {
   del,
@@ -17,14 +19,74 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {PasswordHasherBindings} from '../keys';
 import {Account} from '../models/account.model';
-import {AccountRepository} from '../repositories';
+import {AccountRepository, Credentials} from '../repositories';
+import {BcryptHasher, JWTService, MyUserService} from '../services';
 
 export class AccountController {
   constructor(
     @repository(AccountRepository)
     public accountRepository: AccountRepository,
+
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: JWTService,
+
+    @inject(UserServiceBindings.USER_SERVICE)
+    public accountService: MyUserService,
+
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
+    public hasher: BcryptHasher,
+
   ) { }
+
+  @post('/auth/login')
+  // @authenticate({strategy:'jwt', options: {required:[permissionKeys.AuthFeatures]}})
+  @response(200, {
+    description: 'Token',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            token: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  })
+  async login(
+    @requestBody({
+      description: 'Credentials',
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Account, {
+            title: 'Login',
+            exclude: ['id', 'customer_id', 'createAt', 'updatedAt']
+          })
+        }
+      }
+    })
+    credentials: Credentials
+  ): Promise<any> {
+    const user = await this.accountService.verifyCredentials(credentials);
+
+    const userProfile = this.accountService.convertToUserProfile(user)
+
+    console.log(`userProfile ==> ${JSON.stringify(userProfile)}`)
+
+    const token = await this.jwtService.generateToken(userProfile);
+
+    // const verifyToken = await this.jwtService.verifyToken(token)
+    // console.log(`VerifyToken: ${JSON.stringify(verifyToken)}`)
+
+    // roles: ['roleId']
+
+    return {token, userProfile};
+
+  }
 
   @post('/accounts')
   @response(200, {
@@ -44,6 +106,8 @@ export class AccountController {
     })
     account: Omit<Account, 'id'>,
   ): Promise<Account> {
+    const hash = await this.hasher.hashPassword(account.password);
+    account.password = hash;
     return this.accountRepository.create(account);
   }
 

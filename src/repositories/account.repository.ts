@@ -4,6 +4,12 @@ import {StoreDataSource} from '../datasources/store.datasource';
 import {Account, AccountRelations, Customer} from '../models';
 import {CustomerRepository} from './customer.repository';
 
+
+export type Credentials = {
+  username: string,
+  password: string
+}
+
 export class AccountRepository extends DefaultCrudRepository<
   Account,
   typeof Account.prototype.id,

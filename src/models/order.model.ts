@@ -1,6 +1,6 @@
 import {Entity, belongsTo, hasMany, model, property} from '@loopback/repository';
 import {TimeStampMixin} from '../mixin/time-stamp-model.mixin';
-import {Customer, OrderDetail} from '../models';
+import {Customer, OrderDetail, Product} from '../models';
 @model()
 export class Order extends TimeStampMixin(Entity) {
   @property({
@@ -14,6 +14,19 @@ export class Order extends TimeStampMixin(Entity) {
     type: 'number',
   })
   total: number;
+
+  @property({
+    type: 'string'
+  })
+  name: string
+
+  @property({
+    type: 'number'
+  })
+  quantity: number
+
+  @belongsTo(() => Product, {name: 'product'})
+  product_id: number;
 
   @belongsTo(() => Customer, {name: 'customer'})
   customer_id: number;

@@ -88,7 +88,12 @@ export class OrdersController {
       const newOrderData = new Order({
         customer_id: req.customer_id,
         total: orderTotal,
+        name: product.name,
+        quantity: reqProduct.quantity,
+        product_id: product.id
       })
+
+      console.log('[newOrderData]', newOrderData)
       const newOrder = await this.ordersRepository.create(newOrderData)
       const order = await this.ordersRepository.findById(newOrder.id, {
         include: [{

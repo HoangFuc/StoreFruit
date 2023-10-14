@@ -14,7 +14,6 @@ export class CustomerRepository extends DefaultCrudRepository<
 > {
 
   public readonly account: HasOneRepositoryFactory<Account, typeof Customer.prototype.id>;
-
   public readonly orders: HasManyRepositoryFactory<Order, typeof Customer.prototype.id>;
   constructor(
     @inject('datasources.store') dataSource: StoreDataSource,

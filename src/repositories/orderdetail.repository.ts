@@ -4,6 +4,9 @@ import {StoreDataSource} from '../datasources';
 import {Order, OrderDetail, OrderDetailRelations, Product} from '../models';
 import {OrderRepository, ProductRepository} from '../repositories';
 
+export type Dele = {
+  id: number
+}
 export class OrderDetailRepository extends DefaultCrudRepository<
   OrderDetail,
   typeof OrderDetail.prototype.id,

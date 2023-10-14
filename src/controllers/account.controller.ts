@@ -99,7 +99,7 @@ export class AccountController {
         'application/json': {
           schema: getModelSchemaRef(Account, {
             title: 'NewAccount',
-            exclude: ['id'],
+            exclude: ['id', 'createAt', 'updatedAt', 'customer_id'],
           }),
         },
       },

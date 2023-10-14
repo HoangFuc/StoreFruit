@@ -1,4 +1,5 @@
-import {Entity, hasMany, model, property} from '@loopback/repository';
+import {Entity, hasMany, hasOne, model, property} from '@loopback/repository';
+import {Order} from './order.model';
 import {OrderDetail} from './orderdetail.model';
 
 @model()
@@ -40,6 +41,8 @@ export class Product extends Entity {
   @hasMany(() => OrderDetail, {keyTo: 'product_id'})
   order_details: OrderDetail[];
 
+  @hasOne(() => Order, {keyTo: 'product_id'})
+  order: Order[];
 
   constructor(data?: Partial<Product>) {
     super(data);

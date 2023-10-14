@@ -1,4 +1,4 @@
-import {Entity, belongsTo, model, property} from '@loopback/repository';
+import {Entity, Model, belongsTo, model, property} from '@loopback/repository';
 import {Order, Product} from './index';
 @model()
 export class OrderDetail extends Entity {
@@ -35,7 +35,17 @@ export interface OrderDetailRelations { }
 export type OrderDetailWithRelations = OrderDetail & OrderDetailRelations;
 
 
+@model()
+export class Dele extends Model {
+  @property({
+    type: 'number'
+  })
+  id: number
 
+  constructor(data?: Partial<Dele>) {
+    super(data)
+  }
+}
 // export class OrderDetails extends Entity {
 //   @property({
 //     type: 'array',

@@ -1,3 +1,4 @@
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -17,13 +18,17 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {TokenServiceBindings} from '../keys';
 import {Customer} from '../models/customer.model';
 import {CustomerRepository} from '../repositories';
-
+import {JWTService} from '../services';
 export class SellfruitController {
   constructor(
     @repository(CustomerRepository)
     public customerRepository: CustomerRepository,
+
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: JWTService
   ) { }
 
   @post('/customers')

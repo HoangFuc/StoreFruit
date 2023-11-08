@@ -20,6 +20,12 @@ export class Account extends TimeStampMixin(Entity) {
   })
   password: string;
 
+  @property({
+    type: 'number',
+    default: 0
+  })
+  role?: number
+
   @belongsTo(() => Customer, {name: 'customer'})
   customer_id: number;
 

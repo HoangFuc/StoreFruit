@@ -52,7 +52,8 @@ export class MyUserService implements UserService<Account, Credentials>{
       [securityId]: `${account.id}`,
       name: name,
       id: account.id,
-      customer_id: account.customer_id
+      customer_id: account.customer_id,
+      role: account.role,
     };
   }
 
